@@ -10,11 +10,14 @@ public class PostResponseDto {
 
     private String title;
 
+    private String username;
+
     private String content;
 
-    public PostResponseDto(Long id, String title, String content) {
+    public PostResponseDto(Long id, String title, String username, String content) {
         this.id = id;
         this.title = title;
+        this.username = username;
         this.content = content;
     }
 
@@ -23,6 +26,6 @@ public class PostResponseDto {
 
     }
     public static PostResponseDto from(Post post){
-        return new PostResponseDto(post.getId(), post.getTitle(),post.getContent());
+        return new PostResponseDto(post.getId(), post.getTitle(),post.getUser().getUsername(),post.getContent());
     }
 }

@@ -4,17 +4,21 @@ import com.example.newsfeed.common.Const;
 import com.example.newsfeed.exception.PostNotFoundException;
 import com.example.newsfeed.exception.UserNeedLoginException;
 import com.example.newsfeed.post.dto.CreatePostRequestDto;
+import com.example.newsfeed.post.dto.PostListResponseDto;
 import com.example.newsfeed.post.dto.PostRequestDto;
 import com.example.newsfeed.post.dto.PostResponseDto;
 import com.example.newsfeed.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
+
 @Service
+@Transactional
 public class PostService {
     PostRepository postRepository;
 
@@ -22,6 +26,7 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
+    @Transactional
     public PostResponseDto save(CreatePostRequestDto requestDto,
                                 HttpServletRequest request){
         HttpSession session = request.getSession();
@@ -38,6 +43,8 @@ public class PostService {
         return PostResponseDto.from(saved);
     }
 
+
+    @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, HttpServletRequest request) {
         HttpSession session = request.getSession();
 
@@ -59,6 +66,27 @@ public class PostService {
 
         //수정
         post.update(requestDto.getTitle(), requestDto.getContent());
+
+        return PostResponseDto.from(post);
+    }
+
+    //게시글 전체조회
+    @Transactional(readOnly = true)
+    public List<PostListResponseDto> allPosts(HttpServletRequest request) {
+
+        return postRepository.findAll().stream().map(PostListResponseDto::listDto).toList();
+    }
+
+    //단건조회
+    @Transactional(readOnly = true)
+    public PostResponseDto onePost(Long id) {
+        Optional<Post> foundId = postRepository.findById(id);
+
+        //게시글 유무 예외처리
+        if (foundId.isEmpty()) {
+            throw new PostNotFoundException();
+        }
+        Post post = foundId.get();
 
         return PostResponseDto.from(post);
     }

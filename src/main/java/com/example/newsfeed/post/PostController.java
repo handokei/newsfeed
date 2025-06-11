@@ -2,14 +2,18 @@ package com.example.newsfeed.post;
 
 import com.example.newsfeed.dto.ApiResponse;
 import com.example.newsfeed.post.dto.CreatePostRequestDto;
+import com.example.newsfeed.post.dto.PostListResponseDto;
 import com.example.newsfeed.post.dto.PostRequestDto;
 import com.example.newsfeed.post.dto.PostResponseDto;
 import com.example.newsfeed.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/posts")
@@ -34,7 +38,7 @@ public class PostController {
 
     //게시글 수정
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<PostResponseDto>> readAllPosts(
+    public ResponseEntity<ApiResponse<PostResponseDto>> update(
             @PathVariable Long id,
             @Valid@RequestBody PostRequestDto requestDto,
             HttpServletRequest request){
@@ -42,4 +46,21 @@ public class PostController {
 
         return new ResponseEntity<>(new ApiResponse<>(200,"게시글 수정 성공!",responseDto),HttpStatus.OK);
     }
+
+    //게시글 전체 조회
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PostListResponseDto>>> readAllPost(HttpServletRequest request) {
+        List<PostListResponseDto> responseDto = postService.allPosts(request);
+
+        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 전체 조회 완료!",responseDto),HttpStatus.OK);
+    }
+
+    //게시글 단건 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PostResponseDto>> readOnePost(@PathVariable Long id){
+        PostResponseDto responseDto = postService.onePost(id);
+
+        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 단건 조회 완료",responseDto),HttpStatus.OK);
+    }
+
 }
