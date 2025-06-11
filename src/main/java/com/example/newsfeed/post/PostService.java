@@ -90,4 +90,25 @@ public class PostService {
 
         return PostResponseDto.from(post);
     }
+
+    public void deletePost(Long id,HttpServletRequest request) {
+        HttpSession session = request.getSession();
+
+        //로그인 확인 예외
+        if (session == null || session.getAttribute(Const.LOGIN_USER) == null) {
+            throw new UserNeedLoginException();
+        }
+        User user = (User) session.getAttribute(Const.LOGIN_USER);
+
+        //게시글 유무 확인 예외처리, 조회
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException());
+
+        //본인 게시글 확인
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new PostNotFoundException();
+        }
+
+        postRepository.delete(post);
+    }
 }

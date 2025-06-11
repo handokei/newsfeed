@@ -60,7 +60,15 @@ public class PostController {
     public ResponseEntity<ApiResponse<PostResponseDto>> readOnePost(@PathVariable Long id){
         PostResponseDto responseDto = postService.onePost(id);
 
-        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 단건 조회 완료",responseDto),HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 단건 조회 완료!",responseDto),HttpStatus.OK);
+    }
+
+    //게시글 삭제
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id,
+                                                    HttpServletRequest request){
+        postService.deletePost(id,request);
+        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 정상 삭제 완료!",null),HttpStatus.OK);
     }
 
 }
