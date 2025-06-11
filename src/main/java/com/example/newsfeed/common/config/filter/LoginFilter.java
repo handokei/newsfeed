@@ -1,4 +1,4 @@
-package com.example.newsfeed.config.filter;
+package com.example.newsfeed.common.config.filter;
 
 import com.example.newsfeed.common.Const;
 import jakarta.servlet.*;

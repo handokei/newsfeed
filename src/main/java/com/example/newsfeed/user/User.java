@@ -1,10 +1,9 @@
 package com.example.newsfeed.user;
 
-import com.example.newsfeed.BaseEntity;
+import com.example.newsfeed.common.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import org.hibernate.validator.constraints.Range;
+import jakarta.validation.constraints.Pattern;
 
 
 @Entity
@@ -20,6 +19,7 @@ public class User extends BaseEntity {
     private String username;
 
     @Column(name = "email",nullable = false,updatable = true)
+    @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "이메일 형식이 올바르지 않습니다.")
     private String email;
 
     @Column(name = "password",nullable = false)
