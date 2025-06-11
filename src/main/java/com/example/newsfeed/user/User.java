@@ -36,6 +36,17 @@ public class User extends BaseEntity {
         this.password = password;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 
     //추후 비밀번호 요건 추가해야함
     private boolean validPasswordFormat(String password){

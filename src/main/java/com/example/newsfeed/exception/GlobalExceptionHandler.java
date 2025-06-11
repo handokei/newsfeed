@@ -18,4 +18,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
     }
+    @ExceptionHandler(EmailNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEmailNotFoundException(EmailNotFoundException ex, HttpServletRequest request){
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), request.getServletPath());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+
+    }
+    @ExceptionHandler(LoginUserPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleLoginUserPasswordException(LoginUserPasswordException ex, HttpServletRequest request){
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), request.getServletPath());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+
+    }
 }
