@@ -48,6 +48,9 @@ public class User extends BaseEntity {
         return password;
     }
 
+    public void updatePassword(String newPassword){
+         this.password = newPassword;
+    }
     //추후 비밀번호 요건 추가해야함
     private boolean validPasswordFormat(String password){
 

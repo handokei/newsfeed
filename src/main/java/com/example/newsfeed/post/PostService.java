@@ -10,10 +10,11 @@ import com.example.newsfeed.post.dto.PostResponseDto;
 import com.example.newsfeed.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 
@@ -72,9 +73,10 @@ public class PostService {
 
     //게시글 전체조회
     @Transactional(readOnly = true)
-    public List<PostListResponseDto> allPosts(HttpServletRequest request) {
+    public Page<PostListResponseDto> pagePosts(Pageable pageable) {
 
-        return postRepository.findAll().stream().map(PostListResponseDto::listDto).toList();
+        return postRepository.findAll(pageable)
+                .map(PostListResponseDto::listDto);
     }
 
     //단건조회

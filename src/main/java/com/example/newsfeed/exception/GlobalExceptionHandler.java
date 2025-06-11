@@ -47,4 +47,16 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
+    @ExceptionHandler(UserSamePasswordException.class)
+    public ResponseEntity<ApiResponse> handleUserSamePasswordException(UserSamePasswordException ex, HttpServletRequest request){
+        ApiResponse errorResponse = new ApiResponse(400, ex.getMessage(), request.getServletPath() );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(UserWrongPasswordException.class)
+    public ResponseEntity<ApiResponse> handleUserWrongPasswordException(UserWrongPasswordException ex, HttpServletRequest request){
+        ApiResponse errorResponse = new ApiResponse(400, ex.getMessage(), request.getServletPath() );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
 }

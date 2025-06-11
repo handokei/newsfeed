@@ -9,6 +9,10 @@ import com.example.newsfeed.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,10 +53,15 @@ public class PostController {
 
     //게시글 전체 조회
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostListResponseDto>>> readAllPost(HttpServletRequest request) {
-        List<PostListResponseDto> responseDto = postService.allPosts(request);
+    public ResponseEntity<ApiResponse<Page<PostListResponseDto>>> readAllPost(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+                    HttpServletRequest request) {
 
-        return new ResponseEntity<>(new ApiResponse<>(200,"게시글 전체 조회 완료!",responseDto),HttpStatus.OK);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<PostListResponseDto> responseDto = postService.pagePosts(pageable);
+
+        return new ResponseEntity<>( new ApiResponse<>(200,"게시글 전체 조회 완료!",responseDto),HttpStatus.OK);
     }
 
     //게시글 단건 조회
