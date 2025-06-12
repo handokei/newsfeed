@@ -10,14 +10,15 @@ Spring Boot 기반의 간단한 뉴스피드 API 서버입니다.
 ## 프로젝트 구조
 src
 └── main
-└── java/com/example/newsfeed
-├── comment # 댓글 관련 기능
-├── common # 공통 유틸 및 설정 (JWT, 상수 등)
-├── dto # API 공통 응답 DTO
-├── exception # 커스텀 예외
-├── post # 게시물 관련 기능
-├── user # 사용자 관련 기능
-└── NewsfeedApplication.java
+    └── java/com/example/newsfeed
+        ├── comment     # 댓글 관련 기능
+        ├── common      # 공통 유틸 및 설정 (JWT, 상수 등)
+        ├── dto         # API 공통 응답 DTO
+        ├── exception   # 커스텀 예외
+        ├── post        # 게시물 관련 기능
+        ├── user        # 사용자 관련 기능
+        └── NewsfeedApplication.java
+
 
 
 ---
@@ -68,22 +69,25 @@ src
 ---
 
  예시 요청
-POST /users/login
+ POST /users/login
+Content-Type: application/json
 
 {
   "email": "user@example.com",
   "password": "password123"
 }
+
 응답
 {
   "status": 200,
   "message": "로그인 성공!",
   "data": {
     "userId": 1,
-    "username": "홍길동",
+    "username": "김아무개",
     "token": "eyJhbGciOiJIUzI1NiJ9..."
   }
 }
+
 ## 개선 포인트
 
 JWT 인증 중복 처리 개선
