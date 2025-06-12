@@ -1,29 +1,33 @@
 package com.example.newsfeed.user;
 
 
-import com.example.newsfeed.common.Const;
 import com.example.newsfeed.common.config.PasswordEncoder;
+import com.example.newsfeed.common.config.jwt.JwtService;
 import com.example.newsfeed.exception.*;
 import com.example.newsfeed.user.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     //회원가입
+    @Transactional
     public void save(CreateUserRequestDto requestDto){
         //체크예외 -> 이메일 중복
         if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
@@ -40,22 +44,22 @@ public class UserService {
 
 
     //로그인
-    public UserLoginResponseDto login(String email, String password, HttpServletRequest request) {
+    @Transactional
+    public UserLoginResponseDto login(UserLoginRequestDto requestDto, HttpServletRequest request) {
         //이메일 불일치시,401에러
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(EmailNotFoundException::new);
 
         //비밀번호 불일치시, 401에러
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
             throw new LoginUserPasswordException();
         }
-
-        HttpSession session = request.getSession();
-        session.setAttribute(Const.LOGIN_USER, user);
-        return new UserLoginResponseDto(user.getId(), user.getUsername(),session.getId());
+        String token = jwtService.createJwt(user.getId());
+        return new UserLoginResponseDto(user.getId(), user.getUsername(),token);
     }
 
     //프로필 조회
+    @Transactional(readOnly = true)
     public UserResponseDto readUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
@@ -63,15 +67,21 @@ public class UserService {
     }
 
     //프로필 수정(비밀번호 변경)
+    @Transactional
     public void updatePassword(UserPasswordUpdateRequestDto requestDto,
                                HttpServletRequest request) {
-        //로그인 확인 예외처리
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute(Const.LOGIN_USER) == null){
+        //토큰 추출
+        String authorization = request.getHeader("Authorization");
+        //꺼낸 토큰이 동일한지 확인하는 예외처리
+        if (authorization == null || !authorization.startsWith("Bearer ")){
             throw new UserNeedLoginException();
         }
-        User loginUser = (User) session.getAttribute(Const.LOGIN_USER);
-        User user = userRepository.findById(loginUser.getId())
+        String token = authorization.substring(7);//Bearer 빼고 추출하기
+
+        //사용자 ID 파싱
+        long userId = jwtService.getUserIdFromToken(token);
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
         //비밀번호 불일치시 예외처리
@@ -85,9 +95,6 @@ public class UserService {
        String encode = passwordEncoder.encode(requestDto.getNewPassword());
         user.updatePassword(encode);
         userRepository.save(user);
-        System.out.println("세션 userId: " + session.getAttribute("userId"));
-        System.out.println("oldPassword: " + requestDto.getOldPassword());
-        System.out.println("newPassword: " + requestDto.getNewPassword());
 
     }
 }

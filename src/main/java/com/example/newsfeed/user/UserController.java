@@ -32,7 +32,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserLoginResponseDto>> loginUser(@Valid @RequestBody UserLoginRequestDto requestDto ,
                                                  HttpServletRequest request) {
-        UserLoginResponseDto loginResponseDto = userService.login(requestDto.getEmail(), requestDto.getPassword(), request);
+        UserLoginResponseDto loginResponseDto = userService.login(requestDto, request);
         return ResponseEntity.ok(new ApiResponse<>(200,"로그인 성공!",loginResponseDto));
     }
 

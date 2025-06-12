@@ -1,13 +1,16 @@
 package com.example.newsfeed.post;
 
 import com.example.newsfeed.common.Const;
+import com.example.newsfeed.common.config.jwt.JwtService;
 import com.example.newsfeed.exception.PostNotFoundException;
 import com.example.newsfeed.exception.UserNeedLoginException;
+import com.example.newsfeed.exception.UserNotFoundException;
 import com.example.newsfeed.post.dto.CreatePostRequestDto;
 import com.example.newsfeed.post.dto.PostListResponseDto;
 import com.example.newsfeed.post.dto.PostRequestDto;
 import com.example.newsfeed.post.dto.PostResponseDto;
 import com.example.newsfeed.user.User;
+import com.example.newsfeed.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
@@ -21,44 +24,54 @@ import java.util.Optional;
 @Service
 @Transactional
 public class PostService {
+    private final UserRepository userRepository;
     PostRepository postRepository;
+    JwtService jwtService;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, JwtService jwtService, UserRepository userRepository) {
         this.postRepository = postRepository;
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
     }
 
+    //게시물 저장
     @Transactional
     public PostResponseDto save(CreatePostRequestDto requestDto,
                                 HttpServletRequest request){
-        HttpSession session = request.getSession();
-
+        String authorization = request.getHeader("Authorization");
         //로그인 확인 예외
-        if (session == null || session.getAttribute(Const.LOGIN_USER) == null) {
+        if (authorization == null || !authorization.startsWith("Bearer ")){
             throw new UserNeedLoginException();
         }
+        String token = authorization.substring(7);
 
-        User user = (User) session.getAttribute(Const.LOGIN_USER);
+        long userId = jwtService.getUserIdFromToken(token);
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
         Post savePost = Post.create(requestDto.getTitle(), requestDto.getContent(), user);
         Post saved = (Post) postRepository.save(savePost);
         return PostResponseDto.from(saved);
     }
 
 
+    //게시물 수정
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-
+        String authorization = request.getHeader("Authorization");
         //로그인 확인 예외
-        if (session == null || session.getAttribute(Const.LOGIN_USER) == null) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new UserNeedLoginException();
         }
+        String token = authorization.substring(7);
+        long userId = jwtService.getUserIdFromToken(token);
 
-        User user = (User) session.getAttribute(Const.LOGIN_USER);
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
-        //게시글 유무 확인 예외처리, 조회
+                //게시글 유무 확인 예외처리, 조회
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException());
+                .orElseThrow(PostNotFoundException::new);
 
         //본인 게시글 확인
         if (!post.getUser().getId().equals(user.getId())) {
@@ -93,18 +106,22 @@ public class PostService {
         return PostResponseDto.from(post);
     }
 
+    //게시물 삭제
     public void deletePost(Long id,HttpServletRequest request) {
-        HttpSession session = request.getSession();
-
+        String authorization = request.getHeader("Authorization");
         //로그인 확인 예외
-        if (session == null || session.getAttribute(Const.LOGIN_USER) == null) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new UserNeedLoginException();
         }
-        User user = (User) session.getAttribute(Const.LOGIN_USER);
+        String token = authorization.substring(7);
+        long userId = jwtService.getUserIdFromToken(token);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
         //게시글 유무 확인 예외처리, 조회
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException());
+                .orElseThrow(PostNotFoundException::new);
 
         //본인 게시글 확인
         if (!post.getUser().getId().equals(user.getId())) {

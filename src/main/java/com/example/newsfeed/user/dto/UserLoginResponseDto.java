@@ -4,12 +4,12 @@ public class UserLoginResponseDto {
 
     private Long id;
     private String username;
-    private String sessionId;
+    private String token;
 
     public UserLoginResponseDto(Long id, String username, String sessionId) {
         this.id = id;
         this.username = username;
-        this.sessionId = sessionId;
+        this.token = token;
     }
 
     public Long getId() {
@@ -21,6 +21,6 @@ public class UserLoginResponseDto {
     }
 
     public String getSessionId() {
-        return sessionId;
+        return token;
     }
 }
