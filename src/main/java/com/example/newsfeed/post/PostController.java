@@ -13,10 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -56,10 +58,11 @@ public class PostController {
     public ResponseEntity<ApiResponse<Page<PostListResponseDto>>> readAllPost(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-                    HttpServletRequest request) {
+            @DateTimeFormat(pattern = "yyyyMMdd")LocalDate periodStart,
+            @DateTimeFormat(pattern = "yyyyMMdd")LocalDate periodEnd) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<PostListResponseDto> responseDto = postService.pagePosts(pageable);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("modifiedAt").descending());
+        Page<PostListResponseDto> responseDto = postService.pagePosts(pageable,periodStart,periodEnd);
 
         return new ResponseEntity<>( new ApiResponse<>(200,"게시글 전체 조회 완료!",responseDto),HttpStatus.OK);
     }

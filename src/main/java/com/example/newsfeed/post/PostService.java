@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 
@@ -86,8 +87,16 @@ public class PostService {
 
     //게시글 전체조회
     @Transactional(readOnly = true)
-    public Page<PostListResponseDto> pagePosts(Pageable pageable) {
+    public Page<PostListResponseDto> pagePosts(Pageable pageable,
+                                               LocalDate periodStart,
+                                               LocalDate periodEnd) {
 
+        //기간 조건이 필요할 때 사용
+        if (periodStart != null && periodEnd != null) {
+            return postRepository.findAllByModifiedAtBetween(periodStart,periodEnd,pageable)
+                    .map(PostListResponseDto::listDto);
+        }
+        //기간 조건 없이 검색 될 때 사용
         return postRepository.findAll(pageable)
                 .map(PostListResponseDto::listDto);
     }
