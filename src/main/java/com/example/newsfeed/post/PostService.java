@@ -1,6 +1,6 @@
 package com.example.newsfeed.post;
 
-import com.example.newsfeed.common.Const;
+
 import com.example.newsfeed.common.config.jwt.JwtService;
 import com.example.newsfeed.exception.PostNotFoundException;
 import com.example.newsfeed.exception.UserNeedLoginException;
@@ -12,7 +12,6 @@ import com.example.newsfeed.post.dto.PostResponseDto;
 import com.example.newsfeed.user.User;
 import com.example.newsfeed.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

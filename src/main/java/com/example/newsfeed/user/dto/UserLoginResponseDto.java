@@ -6,7 +6,7 @@ public class UserLoginResponseDto {
     private String username;
     private String token;
 
-    public UserLoginResponseDto(Long id, String username, String sessionId) {
+    public UserLoginResponseDto(Long id, String username, String token) {
         this.id = id;
         this.username = username;
         this.token = token;
@@ -20,7 +20,7 @@ public class UserLoginResponseDto {
         return username;
     }
 
-    public String getSessionId() {
+    public String getToken() {
         return token;
     }
 }
